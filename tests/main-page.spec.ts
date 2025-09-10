@@ -59,16 +59,6 @@ test.describe('Тесты главной страницы', () => {
     });
   });
 
-  test('Проверка переключения light мода', async ({ page }) => {
-    await test.step('Клик по переключателю темы', async () => {
-      await page.getByLabel('Switch between dark and light').click();
-    });
-
-    await test.step('Проверка, что тема светлая', async () => {
-      await expect.soft(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    });
-  });
-
   test('Проверка заголовка страницы', async ({ page }) => {
     await test.step('Проверка видимости заголовка', async () => {
       await expect
@@ -92,6 +82,15 @@ test.describe('Тесты главной страницы', () => {
 
     await test.step('Проверка наличия href', async () => {
       await expect.soft(page.getByRole('link', { name: 'Get started' })).toHaveAttribute('href');
+    });
+  });
+
+  ['light', 'dark'].forEach((value) => {
+    test(`Проверка стилей активного ${value} мода`, async ({ page }) => {
+      await page.evaluate((value) => {
+        document.querySelector('html')?.setAttribute('data-theme', 'value');
+      }, value);
+      await expect(page).toHaveScreenshot('image.png');
     });
   });
 });
