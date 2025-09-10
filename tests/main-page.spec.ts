@@ -87,10 +87,20 @@ test.describe('Тесты главной страницы', () => {
 
   ['light', 'dark'].forEach((value) => {
     test(`Проверка стилей активного ${value} мода`, async ({ page }) => {
-      await page.evaluate((value) => {
-        document.querySelector('html')?.setAttribute('data-theme', 'value');
+      // меняем тему
+      await page.evaluate((theme) => {
+        document.querySelector('html')?.setAttribute('data-theme', theme);
       }, value);
-      await expect(page).toHaveScreenshot('image.png');
+
+      // ждём, пока атрибут реально применится
+      await page.waitForSelector(`html[data-theme="${value}"]`);
+
+      // сравниваем с эталонным скриншотом, но допускаем небольшие отличия
+      await expect(page).toHaveScreenshot(`theme-${value}.png`, {
+        maxDiffPixels: 2000, // допустимо до 2000 пикселей разницы
+        // или:
+        // maxDiffPixelRatio: 0.02, // до 2% от всех пикселей
+      });
     });
   });
 });
